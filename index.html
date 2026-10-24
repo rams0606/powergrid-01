@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Power Grid Management - Supply & Demand Live Monitor</title>
+  <title>Aegis GridOS - Power Grid Supply & Demand Management</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -13,54 +13,196 @@
   <style>
     @keyframes pulse-subtle {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
+      50% { opacity: 0.5; }
     }
     .live-pulse {
       animation: pulse-subtle 2s infinite ease-in-out;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-cyan-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-cyan-500 selection:text-white flex flex-col">
 
   <!-- Top Navigation Header -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-4">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+  <header class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Status -->
       <div class="flex items-center space-x-3">
-        <div class="p-2.5 bg-gradient-to-tr from-cyan-600 to-emerald-500 rounded-xl shadow-lg shadow-cyan-500/20 text-white">
-          <i data-lucide="zap" class="w-6 h-6"></i>
+        <div class="p-2.5 bg-gradient-to-tr from-cyan-600 to-emerald-500 rounded-xl shadow-lg shadow-cyan-500/20 text-white flex-shrink-0">
+          <i data-lucide="zap" class="w-5 h-5 sm:w-6 sm:h-6"></i>
         </div>
         <div>
-          <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-            Aegis GridOS &bull; Regional Energy Dispatch
-          </h1>
-          <p class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+              Aegis GridOS
+            </h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Zone Alpha
+            </span>
+          </div>
+          <p class="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
             <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 live-pulse"></span>
-            Real-time Telemetry &bull; Grid Zone: Interconnect Alpha
+            Real-Time Interconnect Telemetry
           </p>
         </div>
       </div>
 
-      <!-- Live Clock & Status Badge -->
-      <div class="flex items-center gap-4">
-        <div class="text-right hidden sm:block">
-          <div id="clock" class="text-sm font-mono font-medium text-slate-300">--:--:--</div>
-          <div class="text-xs text-slate-500">Live Simulation Active</div>
+      <!-- Desktop Navigation Bar -->
+      <nav class="hidden lg:flex items-center space-x-1 text-xs font-medium text-slate-300">
+        <a href="#overview" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/80 transition flex items-center gap-1.5">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-cyan-400"></i>
+          Overview
+        </a>
+
+        <!-- Generators Dropdown Menu -->
+        <div class="relative group">
+          <button class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/80 transition flex items-center gap-1.5 focus:outline-none">
+            <i data-lucide="cpu" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Power Generators</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform"></i>
+          </button>
+          
+          <!-- Dropdown Card -->
+          <div class="absolute left-0 mt-1 w-72 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-2 hidden group-hover:block transition-all opacity-0 group-hover:opacity-100 z-50 backdrop-blur">
+            <div class="px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-800/60">
+              Active Generation Fleet (42,025 MW)
+            </div>
+            <div class="mt-1 space-y-1">
+              <a href="#gen-solar" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/80 transition">
+                <span class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  <span class="text-slate-200">Solar PV</span>
+                </span>
+                <span class="font-mono text-amber-400 font-semibold text-[11px]">8,167 MW</span>
+              </a>
+              <a href="#gen-wind" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/80 transition">
+                <span class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                  <span class="text-slate-200">Wind Turbine</span>
+                </span>
+                <span class="font-mono text-cyan-400 font-semibold text-[11px]">9,867 MW</span>
+              </a>
+              <a href="#gen-hydro" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/80 transition">
+                <span class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                  <span class="text-slate-200">Hydro Electric</span>
+                </span>
+                <span class="font-mono text-blue-400 font-semibold text-[11px]">6,100 MW</span>
+              </a>
+              <a href="#gen-nuclear" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/80 transition">
+                <span class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-violet-400"></span>
+                  <span class="text-slate-200">Nuclear Baseload</span>
+                </span>
+                <span class="font-mono text-violet-400 font-semibold text-[11px]">11,500 MW</span>
+              </a>
+              <a href="#gen-gas" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/80 transition">
+                <span class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                  <span class="text-slate-200">Gas Peaker</span>
+                </span>
+                <span class="font-mono text-rose-400 font-semibold text-[11px]">4,521 MW</span>
+              </a>
+              <a href="#gen-battery" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-800/80 transition">
+                <span class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span class="text-slate-200">BESS Battery</span>
+                </span>
+                <span class="font-mono text-emerald-400 font-semibold text-[11px]">1,937 MW</span>
+              </a>
+            </div>
+          </div>
         </div>
-        <button id="toggleSimulation" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+
+        <a href="#analytics" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/80 transition flex items-center gap-1.5">
+          <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-indigo-400"></i>
+          Curves
+        </a>
+        <a href="#simulator" class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-slate-800/80 transition flex items-center gap-1.5">
+          <i data-lucide="sliders" class="w-3.5 h-3.5 text-amber-400"></i>
+          Simulator
+        </a>
+      </nav>
+
+      <!-- Right Header Actions (Clock & Mobile Toggle) -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="text-right hidden sm:block">
+          <div id="clock" class="text-xs font-mono font-medium text-slate-300">--:--:-- UTC</div>
+          <div class="text-[10px] text-emerald-400 flex items-center justify-end gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 50.00 Hz Sync
+          </div>
+        </div>
+
+        <button id="toggleSimulation" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1">
           <i data-lucide="pause" id="simIcon" class="w-3.5 h-3.5"></i>
-          <span id="simStatusText">Pause Stream</span>
+          <span id="simStatusText" class="hidden sm:inline">Pause</span>
         </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobileMenuBtn" class="lg:hidden p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white focus:outline-none" aria-label="Toggle Navigation">
+          <i data-lucide="menu" id="menuIcon" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-800/80 bg-slate-900/95 px-4 pt-3 pb-4 space-y-3">
+      <div class="flex flex-col space-y-1 text-sm font-medium text-slate-300">
+        <a href="#overview" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white flex items-center gap-2">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-cyan-400"></i> Overview
+        </a>
+        <a href="#analytics" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-400"></i> Demand & Supply Curves
+        </a>
+        <a href="#generators" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white flex items-center gap-2">
+          <i data-lucide="cpu" class="w-4 h-4 text-emerald-400"></i> Power Generators Fleet
+        </a>
+        <a href="#simulator" onclick="closeMobileMenu()" class="px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-amber-400"></i> Grid Simulator
+        </a>
+      </div>
+
+      <!-- Generator Quick Badges on Mobile -->
+      <div class="pt-2 border-t border-slate-800/80">
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Live Generator Dispatch</div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-2 rounded bg-slate-800/50 flex justify-between">
+            <span class="text-slate-400">Solar:</span>
+            <span class="font-mono text-amber-400 font-semibold">8,167 MW</span>
+          </div>
+          <div class="p-2 rounded bg-slate-800/50 flex justify-between">
+            <span class="text-slate-400">Wind:</span>
+            <span class="font-mono text-cyan-400 font-semibold">9,867 MW</span>
+          </div>
+          <div class="p-2 rounded bg-slate-800/50 flex justify-between">
+            <span class="text-slate-400">Hydro:</span>
+            <span class="font-mono text-blue-400 font-semibold">6,100 MW</span>
+          </div>
+          <div class="p-2 rounded bg-slate-800/50 flex justify-between">
+            <span class="text-slate-400">Nuclear:</span>
+            <span class="font-mono text-violet-400 font-semibold">11,500 MW</span>
+          </div>
+          <div class="p-2 rounded bg-slate-800/50 flex justify-between">
+            <span class="text-slate-400">Gas:</span>
+            <span class="font-mono text-rose-400 font-semibold">4,521 MW</span>
+          </div>
+          <div class="p-2 rounded bg-slate-800/50 flex justify-between">
+            <span class="text-slate-400">BESS:</span>
+            <span class="font-mono text-emerald-400 font-semibold">1,937 MW</span>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8 flex-1 w-full">
 
     <!-- KPI Metric Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <section id="overview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
-      <!-- Total Demand Card -->
+      <!-- Current Demand -->
       <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden backdrop-blur hover:border-slate-700 transition">
         <div class="flex items-center justify-between text-slate-400 mb-2">
           <span class="text-xs font-semibold uppercase tracking-wider">Current Demand</span>
@@ -69,16 +211,16 @@
           </div>
         </div>
         <div class="flex items-baseline space-x-2">
-          <span id="kpiDemand" class="text-3xl font-extrabold tracking-tight text-white font-mono">38,420</span>
+          <span id="kpiDemand" class="text-3xl font-extrabold tracking-tight text-white font-mono">39,850</span>
           <span class="text-sm font-semibold text-slate-400">MW</span>
         </div>
         <div class="mt-3 flex items-center text-xs text-indigo-400">
           <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
-          <span id="demandTrend">Peak Evening Ramp (+1.8%)</span>
+          <span id="demandTrend">Evening Peak Load (+1.6%)</span>
         </div>
       </div>
 
-      <!-- Total Generation Supply Card -->
+      <!-- Total Generation Supply -->
       <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden backdrop-blur hover:border-slate-700 transition">
         <div class="flex items-center justify-between text-slate-400 mb-2">
           <span class="text-xs font-semibold uppercase tracking-wider">Total Generation</span>
@@ -87,16 +229,16 @@
           </div>
         </div>
         <div class="flex items-baseline space-x-2">
-          <span id="kpiSupply" class="text-3xl font-extrabold tracking-tight text-emerald-400 font-mono">40,150</span>
+          <span id="kpiSupply" class="text-3xl font-extrabold tracking-tight text-emerald-400 font-mono">42,092</span>
           <span class="text-sm font-semibold text-slate-400">MW</span>
         </div>
         <div class="mt-3 flex items-center text-xs text-emerald-400">
           <i data-lucide="check-circle-2" class="w-3.5 h-3.5 mr-1"></i>
-          <span>Meeting Demand with Reserves</span>
+          <span>Meeting All Load Demands</span>
         </div>
       </div>
 
-      <!-- Frequency Card -->
+      <!-- Frequency -->
       <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden backdrop-blur hover:border-slate-700 transition">
         <div class="flex items-center justify-between text-slate-400 mb-2">
           <span class="text-xs font-semibold uppercase tracking-wider">Grid Frequency</span>
@@ -105,7 +247,7 @@
           </div>
         </div>
         <div class="flex items-baseline space-x-2">
-          <span id="kpiFreq" class="text-3xl font-extrabold tracking-tight text-white font-mono">50.01</span>
+          <span id="kpiFreq" class="text-3xl font-extrabold tracking-tight text-white font-mono">50.02</span>
           <span class="text-sm font-semibold text-slate-400">Hz</span>
         </div>
         <div class="mt-3 flex items-center text-xs text-emerald-400" id="freqStatusContainer">
@@ -114,7 +256,7 @@
         </div>
       </div>
 
-      <!-- Reserve Margin Card -->
+      <!-- Operating Reserve Margin -->
       <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden backdrop-blur hover:border-slate-700 transition">
         <div class="flex items-center justify-between text-slate-400 mb-2">
           <span class="text-xs font-semibold uppercase tracking-wider">Operating Reserve</span>
@@ -123,22 +265,224 @@
           </div>
         </div>
         <div class="flex items-baseline space-x-2">
-          <span id="kpiMargin" class="text-3xl font-extrabold tracking-tight text-amber-400 font-mono">+4.5</span>
+          <span id="kpiMargin" class="text-3xl font-extrabold tracking-tight text-amber-400 font-mono">+5.6</span>
           <span class="text-sm font-semibold text-slate-400">%</span>
         </div>
         <div class="mt-3 flex items-center text-xs text-slate-400">
-          <span id="kpiMarginMw" class="font-mono text-slate-300">1,730 MW</span>
+          <span id="kpiMarginMw" class="font-mono text-slate-300">2,242 MW</span>
           <span class="ml-1 text-slate-500">&bull; Safe operating buffer</span>
         </div>
       </div>
 
-    </div>
+    </section>
 
-    <!-- Charts Row: Supply vs Demand & Generation Mix -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- SECTION: Power Generators Fleet (Full Details & Responsive Cards) -->
+    <section id="generators" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="cpu" class="w-5 h-5 text-emerald-400"></i>
+            Active Power Generation Fleet
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Comprehensive real-time telemetry across all 6 dispatch categories</p>
+        </div>
+        <div class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+          Aggregate Capacity: <span class="text-emerald-400 font-bold">42,092 MW</span>
+        </div>
+      </div>
+
+      <!-- 6 Responsive Generator Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <!-- 1. Solar -->
+        <div id="gen-solar" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-amber-500/40 transition">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <i data-lucide="sun" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-sm">Solar Photovoltaic</h3>
+                <p class="text-[11px] text-slate-400">Intermittent &bull; 14 Farms Active</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300">RENEWABLE</span>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between">
+            <div>
+              <span id="cardSolar" class="text-2xl font-extrabold font-mono text-amber-400">8,167</span>
+              <span class="text-xs font-semibold text-slate-400 ml-1">MW</span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Cap: 9,200 MW</span>
+          </div>
+          <!-- Progress bar -->
+          <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="barSolar" class="bg-amber-400 h-1.5 rounded-full" style="width: 88%"></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Capacity Factor: <strong class="text-slate-200">88.7%</strong></span>
+            <span class="text-emerald-400">Peak Sun Window</span>
+          </div>
+        </div>
+
+        <!-- 2. Wind -->
+        <div id="gen-wind" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-cyan-500/40 transition">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                <i data-lucide="wind" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-sm">Wind Turbine Fleet</h3>
+                <p class="text-[11px] text-slate-400">Onshore &amp; Offshore Clusters</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300">RENEWABLE</span>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between">
+            <div>
+              <span id="cardWind" class="text-2xl font-extrabold font-mono text-cyan-400">9,867</span>
+              <span class="text-xs font-semibold text-slate-400 ml-1">MW</span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Cap: 11,500 MW</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="barWind" class="bg-cyan-400 h-1.5 rounded-full" style="width: 85%"></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Wind Speed: <strong class="text-slate-200">12.4 m/s</strong></span>
+            <span class="text-emerald-400">Steady Gusts</span>
+          </div>
+        </div>
+
+        <!-- 3. Hydro -->
+        <div id="gen-hydro" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-blue-500/40 transition">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                <i data-lucide="waves" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-sm">Hydro Electric Dams</h3>
+                <p class="text-[11px] text-slate-400">Pumped Storage &amp; Run-of-River</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300">FLEXIBLE</span>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between">
+            <div>
+              <span id="cardHydro" class="text-2xl font-extrabold font-mono text-blue-400">6,100</span>
+              <span class="text-xs font-semibold text-slate-400 ml-1">MW</span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Cap: 7,000 MW</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="barHydro" class="bg-blue-500 h-1.5 rounded-full" style="width: 87%"></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Reservoir Head: <strong class="text-slate-200">92% full</strong></span>
+            <span class="text-cyan-400">Spinning Reserve</span>
+          </div>
+        </div>
+
+        <!-- 4. Nuclear -->
+        <div id="gen-nuclear" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-violet-500/40 transition">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                <i data-lucide="atom" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-sm">Nuclear Power Plants</h3>
+                <p class="text-[11px] text-slate-400">Continuous Constant Baseload</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-500/20 text-violet-300">BASELOAD</span>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between">
+            <div>
+              <span id="cardNuclear" class="text-2xl font-extrabold font-mono text-violet-400">11,500</span>
+              <span class="text-xs font-semibold text-slate-400 ml-1">MW</span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Cap: 11,500 MW</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="barNuclear" class="bg-violet-500 h-1.5 rounded-full" style="width: 100%"></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Operational Capacity: <strong class="text-slate-200">100.0%</strong></span>
+            <span class="text-emerald-400">Zero Carbon</span>
+          </div>
+        </div>
+
+        <!-- 5. Gas Peaker -->
+        <div id="gen-gas" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-rose-500/40 transition">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                <i data-lucide="flame" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-sm">Gas Turbine Peakers</h3>
+                <p class="text-[11px] text-slate-400">Fast-Ramp Thermal Dispatch</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300">PEAKING</span>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between">
+            <div>
+              <span id="cardGas" class="text-2xl font-extrabold font-mono text-rose-400">4,521</span>
+              <span class="text-xs font-semibold text-slate-400 ml-1">MW</span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Cap: 6,000 MW</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="barGas" class="bg-rose-500 h-1.5 rounded-full" style="width: 75%"></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Ramp Rate: <strong class="text-slate-200">180 MW/min</strong></span>
+            <span class="text-amber-400">Active Peaking</span>
+          </div>
+        </div>
+
+        <!-- 6. BESS Battery -->
+        <div id="gen-battery" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 hover:border-emerald-500/40 transition">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <i data-lucide="battery-charging" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-sm">BESS Battery Storage</h3>
+                <p class="text-[11px] text-slate-400">Grid Scale Lithium-Ion Buffer</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">STORAGE</span>
+          </div>
+          <div class="mt-4 flex items-baseline justify-between">
+            <div>
+              <span id="cardBattery" class="text-2xl font-extrabold font-mono text-emerald-400">1,937</span>
+              <span class="text-xs font-semibold text-slate-400 ml-1">MW</span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Cap: 3,000 MW</span>
+          </div>
+          <div class="mt-3 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="barBattery" class="bg-emerald-400 h-1.5 rounded-full" style="width: 64%"></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+            <span>State of Charge: <strong class="text-slate-200">78%</strong></span>
+            <span class="text-emerald-400">Discharging</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION: Charts Row (Curves & Generation Mix) -->
+    <section id="analytics" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- Real-time Supply vs Demand Chart (2 Columns Wide) -->
-      <div class="lg:col-span-2 bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 backdrop-blur">
+      <!-- Supply vs Demand Line Chart (2 Columns Wide) -->
+      <div class="lg:col-span-2 bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 sm:p-6 backdrop-blur">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800/60 gap-2">
           <div>
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
@@ -147,7 +491,6 @@
             </h2>
             <p class="text-xs text-slate-400 mt-0.5">Live tracking with 24-Hour continuous rolling telemetry</p>
           </div>
-          <!-- Legend Badges -->
           <div class="flex items-center gap-3 text-xs">
             <span class="flex items-center gap-1.5">
               <span class="w-3 h-0.5 bg-indigo-400 inline-block rounded"></span>
@@ -155,7 +498,7 @@
             </span>
             <span class="flex items-center gap-1.5">
               <span class="w-3 h-0.5 bg-emerald-400 inline-block rounded"></span>
-              <span class="text-slate-300">Total Generation</span>
+              <span class="text-slate-300">Generation</span>
             </span>
             <span class="flex items-center gap-1.5">
               <span class="w-3 h-0.5 bg-amber-400 inline-block rounded border-dashed"></span>
@@ -169,15 +512,15 @@
         </div>
       </div>
 
-      <!-- Generation Mix by Source (1 Column Wide) -->
-      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 backdrop-blur flex flex-col justify-between">
+      <!-- Generation Mix Donut Chart (1 Column Wide) -->
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 sm:p-6 backdrop-blur flex flex-col justify-between">
         <div>
           <div class="pb-4 border-b border-slate-800/60">
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
               <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-400"></i>
-              Generation Mix
+              Dispatch Mix
             </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Current dispatch share by generation type</p>
+            <p class="text-xs text-slate-400 mt-0.5">Share of current generation fleet output</p>
           </div>
           
           <div class="mt-4 relative h-52 sm:h-56 w-full flex items-center justify-center">
@@ -185,64 +528,50 @@
           </div>
         </div>
 
-        <!-- Breakdown List -->
-        <div class="grid grid-cols-2 gap-2 text-xs pt-4 border-t border-slate-800/60 mt-4">
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/40">
-            <span class="flex items-center gap-1.5 text-slate-400">
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Solar
-            </span>
-            <span id="mixSolar" class="font-mono font-semibold text-slate-200">8,200 MW</span>
+        <div class="grid grid-cols-2 gap-2 text-xs pt-4 border-t border-slate-800/60 mt-4 font-mono">
+          <div class="flex justify-between p-2 rounded bg-slate-800/40">
+            <span class="text-slate-400">Solar:</span>
+            <span id="mixSolar" class="text-amber-400 font-semibold">8,167 MW</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/40">
-            <span class="flex items-center gap-1.5 text-slate-400">
-              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Wind
-            </span>
-            <span id="mixWind" class="font-mono font-semibold text-slate-200">9,800 MW</span>
+          <div class="flex justify-between p-2 rounded bg-slate-800/40">
+            <span class="text-slate-400">Wind:</span>
+            <span id="mixWind" class="text-cyan-400 font-semibold">9,867 MW</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/40">
-            <span class="flex items-center gap-1.5 text-slate-400">
-              <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Hydro
-            </span>
-            <span id="mixHydro" class="font-mono font-semibold text-slate-200">6,100 MW</span>
+          <div class="flex justify-between p-2 rounded bg-slate-800/40">
+            <span class="text-slate-400">Hydro:</span>
+            <span id="mixHydro" class="text-blue-400 font-semibold">6,100 MW</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/40">
-            <span class="flex items-center gap-1.5 text-slate-400">
-              <span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span> Nuclear
-            </span>
-            <span id="mixNuclear" class="font-mono font-semibold text-slate-200">11,500 MW</span>
+          <div class="flex justify-between p-2 rounded bg-slate-800/40">
+            <span class="text-slate-400">Nuclear:</span>
+            <span id="mixNuclear" class="text-violet-400 font-semibold">11,500 MW</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/40">
-            <span class="flex items-center gap-1.5 text-slate-400">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Gas Peaker
-            </span>
-            <span id="mixGas" class="font-mono font-semibold text-slate-200">3,200 MW</span>
+          <div class="flex justify-between p-2 rounded bg-slate-800/40">
+            <span class="text-slate-400">Gas:</span>
+            <span id="mixGas" class="text-rose-400 font-semibold">4,521 MW</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/40">
-            <span class="flex items-center gap-1.5 text-slate-400">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> BESS Battery
-            </span>
-            <span id="mixBattery" class="font-mono font-semibold text-slate-200">1,350 MW</span>
+          <div class="flex justify-between p-2 rounded bg-slate-800/40">
+            <span class="text-slate-400">BESS:</span>
+            <span id="mixBattery" class="text-emerald-400 font-semibold">1,937 MW</span>
           </div>
         </div>
-
       </div>
 
-    </div>
+    </section>
 
-    <!-- Bottom Row: Grid Simulation Stress Controls & Alert Feeds -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- SECTION: Simulator & Live Log -->
+    <section id="simulator" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- Interactive Scenario Controls (2 Columns) -->
-      <div class="lg:col-span-2 bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 backdrop-blur">
-        <div class="pb-4 border-b border-slate-800/60 flex items-center justify-between">
+      <!-- Interactive Controls (2 Columns) -->
+      <div class="lg:col-span-2 bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 sm:p-6 backdrop-blur">
+        <div class="pb-4 border-b border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
               <i data-lucide="sliders" class="w-4 h-4 text-cyan-400"></i>
               Interactive Grid Scenario Simulator
             </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Test real-time grid response by injecting synthetic supply shocks or demand spikes</p>
+            <p class="text-xs text-slate-400 mt-0.5">Inject demand surges or renewable fluctuations to test automated grid response</p>
           </div>
-          <button id="resetSimBtn" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded bg-slate-800 border border-slate-700 transition">
+          <button id="resetSimBtn" class="text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded bg-slate-800 border border-slate-700 transition self-start sm:self-auto">
             Reset to Baseline
           </button>
         </div>
@@ -254,7 +583,7 @@
             <div class="flex justify-between text-xs">
               <label for="demandModifier" class="font-medium text-slate-300 flex items-center gap-1.5">
                 <i data-lucide="flame" class="w-3.5 h-3.5 text-orange-400"></i>
-                Demand Shock (Heatwave / Cold Snap)
+                Demand Shock (Heatwave / Peak)
               </label>
               <span id="demandModifierVal" class="font-mono font-semibold text-indigo-400">+0%</span>
             </div>
@@ -281,20 +610,20 @@
             <div class="flex justify-between text-[11px] text-slate-500">
               <span>20% (Dunkelflaute)</span>
               <span>100% (Normal)</span>
-              <span>140% (Overproduction)</span>
+              <span>140% (Surplus)</span>
             </div>
           </div>
 
         </div>
 
-        <!-- Quick Scenario Action Buttons -->
-        <div class="mt-6 pt-4 border-t border-slate-800/60 flex flex-wrap gap-2">
-          <span class="text-xs text-slate-400 self-center mr-2">Presets:</span>
+        <!-- Presets -->
+        <div class="mt-6 pt-4 border-t border-slate-800/60 flex flex-wrap items-center gap-2">
+          <span class="text-xs text-slate-400 mr-2">Quick Scenarios:</span>
           <button onclick="applyPreset('heatwave')" class="px-3 py-1.5 text-xs rounded-lg bg-orange-500/10 text-orange-300 border border-orange-500/30 hover:bg-orange-500/20 transition">
-            🔥 Severe Heatwave (+25% Demand)
+            🔥 Severe Heatwave (+25% Load)
           </button>
           <button onclick="applyPreset('dunkelflaute')" class="px-3 py-1.5 text-xs rounded-lg bg-sky-500/10 text-sky-300 border border-sky-500/30 hover:bg-sky-500/20 transition">
-            ☁️ Sudden Cloud & Low Wind (-60% Renewables)
+            ☁️ Sudden Cloud & Low Wind (-60%)
           </button>
           <button onclick="applyPreset('surplus')" class="px-3 py-1.5 text-xs rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20 transition">
             ⚡ High Renewable Surplus (Charge BESS)
@@ -303,30 +632,48 @@
       </div>
 
       <!-- Real-time Alerts & Dispatch Log -->
-      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 backdrop-blur flex flex-col">
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 sm:p-6 backdrop-blur flex flex-col">
         <div class="pb-4 border-b border-slate-800/60 flex items-center justify-between">
           <h2 class="text-base font-semibold text-white flex items-center gap-2">
             <i data-lucide="bell" class="w-4 h-4 text-amber-400"></i>
             Grid Operations Log
           </h2>
-          <span id="alertCountBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-            NORMAL
+          <span id="alertCountBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            GRID BALANCED
           </span>
         </div>
 
-        <div id="gridEventsList" class="mt-4 space-y-3 overflow-y-auto max-h-64 pr-1 text-xs">
-          <!-- Dynamic event logs inserted here -->
+        <div id="gridEventsList" class="mt-4 space-y-2.5 overflow-y-auto max-h-64 pr-1 text-xs">
+          <!-- Live events inserted dynamically -->
         </div>
       </div>
 
-    </div>
+    </section>
 
   </main>
 
-  <!-- Interactive JavaScript Logic -->
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-900/40 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <div>Aegis GridOS &bull; Real-Time Power Grid Supply &amp; Demand Management</div>
+      <div>Designed for 100% responsive desktop, tablet, and mobile displays</div>
+    </div>
+  </footer>
+
+  <!-- JavaScript Application Logic -->
   <script>
     // Initialize Lucide Icons
     lucide.createIcons();
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    function closeMobileMenu() {
+      mobileMenu.classList.add('hidden');
+    }
 
     // State Variables
     let isLive = true;
@@ -334,27 +681,23 @@
     let renewableModPercent = 100;
     let tickCount = 0;
 
-    // Baseline Capacities (MW)
+    // Requested Generator Baseline Capacities (MW)
     const BASE_SOURCES = {
-      solar: 8200,
-      wind: 9800,
+      solar: 8167,
+      wind: 9867,
       hydro: 6100,
       nuclear: 11500,
-      gas: 3200,
-      battery: 1350
+      gas: 4521,
+      battery: 1937
     };
 
-    // 24-Hour Historical Baseline (Supply, Demand, Forecast)
+    // 24-Hour Historical Profile
     const hours = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '24:00'];
-    const baseDemandProfile = [29500, 28000, 27400, 31000, 36200, 37500, 38100, 37800, 39400, 42100, 41200, 35000, 31200];
-    const baseSupplyProfile = [31000, 29800, 29200, 33100, 38000, 39900, 41200, 40100, 41500, 43900, 43100, 37200, 33000];
-    const baseForecastProfile = [29400, 28200, 27300, 30800, 36000, 37800, 38000, 37500, 39100, 41900, 41000, 35200, 31000];
+    const baseDemandProfile = [29800, 28200, 27600, 31200, 36500, 37900, 38500, 38200, 39600, 42025, 41100, 35400, 31500];
+    const baseSupplyProfile = [31200, 29900, 29400, 33200, 38200, 40100, 41500, 40300, 41700, 44200, 43200, 37400, 33200];
+    const baseForecastProfile = [29700, 28100, 27500, 31000, 36300, 37700, 38300, 38000, 39400, 41800, 40900, 35200, 31200];
 
-    // Current working datasets
-    let currentDemandData = [...baseDemandProfile];
-    let currentSupplyData = [...baseSupplyProfile];
-
-    // Setup Supply vs Demand Chart
+    // Chart.js Supply vs Demand
     const ctxSD = document.getElementById('supplyDemandChart').getContext('2d');
     const supplyDemandChart = new Chart(ctxSD, {
       type: 'line',
@@ -363,8 +706,8 @@
         datasets: [
           {
             label: 'Total Generation (MW)',
-            data: currentSupplyData,
-            borderColor: '#34d399', // Emerald
+            data: [...baseSupplyProfile],
+            borderColor: '#34d399',
             backgroundColor: 'rgba(52, 211, 153, 0.1)',
             fill: true,
             tension: 0.35,
@@ -374,8 +717,8 @@
           },
           {
             label: 'Actual Demand (MW)',
-            data: currentDemandData,
-            borderColor: '#818cf8', // Indigo
+            data: [...baseDemandProfile],
+            borderColor: '#818cf8',
             backgroundColor: 'rgba(129, 140, 248, 0.05)',
             fill: true,
             tension: 0.35,
@@ -386,7 +729,7 @@
           {
             label: 'Forecast Demand (MW)',
             data: baseForecastProfile,
-            borderColor: '#fbbf24', // Amber
+            borderColor: '#fbbf24',
             borderDash: [5, 5],
             fill: false,
             tension: 0.35,
@@ -398,10 +741,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
+        interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -430,7 +770,7 @@
       }
     });
 
-    // Setup Generation Mix Donut Chart
+    // Donut Chart for Mix
     const ctxMix = document.getElementById('generationMixChart').getContext('2d');
     const mixChart = new Chart(ctxMix, {
       type: 'doughnut',
@@ -449,7 +789,7 @@
             '#fbbf24', // Solar
             '#22d3ee', // Wind
             '#3b82f6', // Hydro
-            '#8b5cf6', // Nuclear
+            '#a78bfa', // Nuclear
             '#f43f5e', // Gas
             '#10b981'  // Battery
           ],
@@ -477,22 +817,18 @@
       }
     });
 
-    // Logging Feed Function
+    // Logging Feed
     function addLogEvent(message, type = 'info') {
       const list = document.getElementById('gridEventsList');
       const timeStr = new Date().toLocaleTimeString();
       let colorClass = 'text-slate-300 border-slate-800 bg-slate-800/30';
-      let icon = 'info';
 
       if (type === 'warn') {
         colorClass = 'text-amber-300 border-amber-900/40 bg-amber-500/10';
-        icon = 'alert-triangle';
       } else if (type === 'alert') {
         colorClass = 'text-rose-300 border-rose-900/40 bg-rose-500/10';
-        icon = 'alert-circle';
       } else if (type === 'success') {
         colorClass = 'text-emerald-300 border-emerald-900/40 bg-emerald-500/10';
-        icon = 'check';
       }
 
       const item = document.createElement('div');
@@ -508,43 +844,37 @@
       }
     }
 
-    // Calculation and Update Engine
+    // Grid Physics Simulation Loop
     function calculateGridState() {
-      // Calculate adjusted solar and wind
       const renFactor = renewableModPercent / 100;
-      const solarActual = Math.round(BASE_SOURCES.solar * renFactor + (Math.random() * 200 - 100));
-      const windActual = Math.round(BASE_SOURCES.wind * renFactor + (Math.random() * 260 - 130));
+      const solarActual = Math.round(BASE_SOURCES.solar * renFactor + (Math.random() * 150 - 75));
+      const windActual = Math.round(BASE_SOURCES.wind * renFactor + (Math.random() * 200 - 100));
 
-      // Demand calculation with jitter
       const demandFactor = 1 + (demandModPercent / 100);
-      const activeHourIndex = 9; // 18:00 (evening peak)
+      const activeHourIndex = 9; // 18:00
       const baseDemand = baseDemandProfile[activeHourIndex];
-      const currentDemand = Math.round((baseDemand * demandFactor) + (Math.random() * 300 - 150));
+      const currentDemand = Math.round((baseDemand * demandFactor) + (Math.random() * 250 - 125));
 
-      // Automated Peaker & Battery Dispatch
       let gasActual = BASE_SOURCES.gas;
       let batteryActual = BASE_SOURCES.battery;
 
       const nonDispatched = solarActual + windActual + BASE_SOURCES.hydro + BASE_SOURCES.nuclear;
       const shortfall = currentDemand - nonDispatched;
 
-      if (shortfall > 3000) {
-        // High load: Fire peakers and dump battery
-        gasActual = Math.min(6500, Math.round(shortfall * 0.7));
-        batteryActual = Math.min(2800, Math.round(shortfall * 0.3));
+      if (shortfall > 3500) {
+        gasActual = Math.min(6000, Math.round(shortfall * 0.72));
+        batteryActual = Math.min(3000, Math.round(shortfall * 0.28));
       } else if (shortfall < 0) {
-        // Renewable surplus: curtail gas, charge batteries
-        gasActual = 800;
-        batteryActual = -Math.min(2000, Math.abs(shortfall)); // Charging
+        gasActual = 1200;
+        batteryActual = -Math.min(2500, Math.abs(shortfall));
       }
 
       const totalGen = solarActual + windActual + BASE_SOURCES.hydro + BASE_SOURCES.nuclear + gasActual + batteryActual;
       const marginMw = totalGen - currentDemand;
       const marginPercent = ((marginMw / currentDemand) * 100);
 
-      // Grid frequency calculation (droop response)
-      // Balance = 50.00 Hz. Shortfall lowers frequency, surplus raises it
-      const freqDelta = (marginPercent - 3.5) * 0.035;
+      // Droop Frequency Curve
+      const freqDelta = (marginPercent - 4.5) * 0.032;
       const frequency = Number(Math.max(49.2, Math.min(50.8, 50.00 + freqDelta + (Math.random() * 0.02 - 0.01)))).toFixed(2);
 
       return {
@@ -567,30 +897,30 @@
     function renderUI() {
       const state = calculateGridState();
 
-      // Update KPI DOM
+      // Update KPI Bar
       document.getElementById('kpiDemand').textContent = state.demand.toLocaleString();
       document.getElementById('kpiSupply').textContent = state.supply.toLocaleString();
       document.getElementById('kpiMargin').textContent = (state.marginPercent >= 0 ? '+' : '') + state.marginPercent;
       document.getElementById('kpiMarginMw').textContent = state.marginMw.toLocaleString() + ' MW';
       document.getElementById('kpiFreq').textContent = state.frequency;
 
-      // Frequency styling alert
+      // Frequency Alert Handling
       const freqVal = parseFloat(state.frequency);
       const freqStatus = document.getElementById('kpiFreqStatus');
       const badge = document.getElementById('alertCountBadge');
 
       if (freqVal < 49.80) {
-        freqStatus.textContent = 'Under-Frequency Alert!';
+        freqStatus.textContent = 'Under-Frequency Warning!';
         freqStatus.parentElement.className = 'mt-3 flex items-center text-xs text-rose-400 font-semibold';
         badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30';
         badge.textContent = 'CRITICAL ALERT';
-        if (tickCount % 6 === 0) addLogEvent(`Frequency drop detected (${state.frequency} Hz). Immediate spinning reserve dispatched.`, 'alert');
+        if (tickCount % 6 === 0) addLogEvent(`Grid frequency dipped to ${state.frequency} Hz. Fast-frequency battery injection engaged.`, 'alert');
       } else if (freqVal > 50.25) {
-        freqStatus.textContent = 'Over-Frequency / High Surplus';
+        freqStatus.textContent = 'Over-Frequency / Generation Surplus';
         freqStatus.parentElement.className = 'mt-3 flex items-center text-xs text-amber-400 font-semibold';
         badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
         badge.textContent = 'SURPLUS WARNING';
-        if (tickCount % 6 === 0) addLogEvent(`Frequency peak (${state.frequency} Hz). Renewable curtailment / battery charging engaged.`, 'warn');
+        if (tickCount % 6 === 0) addLogEvent(`Frequency rose to ${state.frequency} Hz. Diverting excess power to BESS battery charging.`, 'warn');
       } else {
         freqStatus.textContent = 'Optimal (Nominal 50.00 Hz)';
         freqStatus.parentElement.className = 'mt-3 flex items-center text-xs text-emerald-400';
@@ -598,7 +928,23 @@
         badge.textContent = 'GRID BALANCED';
       }
 
-      // Update Source Table Breakdown
+      // Update Dedicated Generator Cards
+      document.getElementById('cardSolar').textContent = state.sources.solar.toLocaleString();
+      document.getElementById('cardWind').textContent = state.sources.wind.toLocaleString();
+      document.getElementById('cardHydro').textContent = state.sources.hydro.toLocaleString();
+      document.getElementById('cardNuclear').textContent = state.sources.nuclear.toLocaleString();
+      document.getElementById('cardGas').textContent = state.sources.gas.toLocaleString();
+      document.getElementById('cardBattery').textContent = state.sources.battery.toLocaleString();
+
+      // Update Generator Card Progress Bars
+      document.getElementById('barSolar').style.width = Math.min(100, Math.round((state.sources.solar / 9200) * 100)) + '%';
+      document.getElementById('barWind').style.width = Math.min(100, Math.round((state.sources.wind / 11500) * 100)) + '%';
+      document.getElementById('barHydro').style.width = Math.min(100, Math.round((state.sources.hydro / 7000) * 100)) + '%';
+      document.getElementById('barNuclear').style.width = '100%';
+      document.getElementById('barGas').style.width = Math.min(100, Math.round((state.sources.gas / 6000) * 100)) + '%';
+      document.getElementById('barBattery').style.width = Math.min(100, Math.round((state.sources.battery / 3000) * 100)) + '%';
+
+      // Update Mix Text Summary
       document.getElementById('mixSolar').textContent = state.sources.solar.toLocaleString() + ' MW';
       document.getElementById('mixWind').textContent = state.sources.wind.toLocaleString() + ' MW';
       document.getElementById('mixHydro').textContent = state.sources.hydro.toLocaleString() + ' MW';
@@ -606,7 +952,7 @@
       document.getElementById('mixGas').textContent = state.sources.gas.toLocaleString() + ' MW';
       document.getElementById('mixBattery').textContent = state.sources.battery.toLocaleString() + ' MW';
 
-      // Update Donut Chart
+      // Update Charts
       mixChart.data.datasets[0].data = [
         state.sources.solar,
         state.sources.wind,
@@ -617,7 +963,6 @@
       ];
       mixChart.update('none');
 
-      // Update Line Chart active peak slot (index 9)
       supplyDemandChart.data.datasets[0].data[9] = state.supply;
       supplyDemandChart.data.datasets[1].data[9] = state.demand;
       supplyDemandChart.update('none');
@@ -625,7 +970,7 @@
       tickCount++;
     }
 
-    // Sliders Event Handlers
+    // Slider Controls
     const demandSlider = document.getElementById('demandModifier');
     const renewSlider = document.getElementById('renewablesModifier');
 
@@ -639,23 +984,23 @@
     renewSlider.addEventListener('input', (e) => {
       renewableModPercent = parseInt(e.target.value);
       document.getElementById('renewablesModifierVal').textContent = renewableModPercent + '%';
-      addLogEvent(`Renewable capacity factor adjusted to ${renewableModPercent}%`, 'info');
+      addLogEvent(`Renewable availability factor adjusted to ${renewableModPercent}%`, 'info');
       renderUI();
     });
 
-    // Preset Buttons
+    // Preset Scenarios
     function applyPreset(name) {
       if (name === 'heatwave') {
         demandSlider.value = 25;
         renewSlider.value = 90;
-        addLogEvent('Preset activated: Severe Regional Heatwave', 'warn');
+        addLogEvent('Preset activated: Severe Regional Heatwave (+25% load)', 'warn');
       } else if (name === 'dunkelflaute') {
         demandSlider.value = 10;
-        renewSlider.value = 30;
+        renewSlider.value = 35;
         addLogEvent('Preset activated: Dunkelflaute (Low Wind & Cloud Cover)', 'warn');
       } else if (name === 'surplus') {
         demandSlider.value = -15;
-        renewSlider.value = 130;
+        renewSlider.value = 135;
         addLogEvent('Preset activated: High Renewable Generation Surplus', 'success');
       }
       demandSlider.dispatchEvent(new Event('input'));
@@ -674,7 +1019,7 @@
     const toggleSimBtn = document.getElementById('toggleSimulation');
     toggleSimBtn.addEventListener('click', () => {
       isLive = !isLive;
-      document.getElementById('simStatusText').textContent = isLive ? 'Pause Stream' : 'Resume Stream';
+      document.getElementById('simStatusText').textContent = isLive ? 'Pause' : 'Resume';
       document.getElementById('simIcon').setAttribute('data-lucide', isLive ? 'pause' : 'play');
       lucide.createIcons();
     });
@@ -688,15 +1033,15 @@
     updateClock();
 
     // Initial Logs
-    addLogEvent('Telemetry initialized. Connected to Regional Grid Dispatcher.', 'info');
-    addLogEvent('All interconnect frequency regulators online.', 'success');
+    addLogEvent('Telemetry stream online. Connected to regional power dispatcher.', 'info');
+    addLogEvent('Generation fleet: Solar (8,167 MW), Wind (9,867 MW), Hydro (6,100 MW), Nuclear (11,500 MW), Gas Peaker (4,521 MW), BESS (1,937 MW).', 'success');
 
     // Run Render Loop every 2.5 seconds
     setInterval(() => {
       if (isLive) renderUI();
     }, 2500);
 
-    // Initial render
+    // Initial Render
     renderUI();
   </script>
 </body>
